@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/css/mycss.css}" />
+</head>
+<body>
+    <img src="/images/dog.jpeg" alt="Static Image">
+    <p th:text="${quote}" class="greenText"/>
+    <div style="display: flex">
+        <span>Repository </span>
+        <a href="https://github.com/kkeejjuunn/myrepo" target="_blank">https://github.com/kkeejjuunn/myrepo</a>
+    </div>
+</body>
+</html>
