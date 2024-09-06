@@ -1,0 +1,90 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cs-deploy
+  namespace: codeserver
+  labels:
+    app: cs
+    name: cs-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cs
+      name: cs-po
+  template:
+    metadata:
+      labels:
+        app: cs
+        name: cs-po
+    spec:
+      securityContext:
+        fsGroup: 1000
+      volumes:
+      - name: cs-vol
+        persistentVolumeClaim:
+          claimName: mysql-pvc
+      containers:
+      - name: cs-container
+        image: linuxserver/code-server:amd64-4.92.2
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        envFrom:
+        - configMapRef:
+            name: cs-cm
+        - secretRef:
+            name: cs-secret
+        ports:
+        - containerPort: 8443
+        # volumeMounts:
+        #   - name: workspace-vol
+        #     mountPath: /config/workspace
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cs-svc
+  namespace: codeserver
+  labels:
+    app: cs
+    name: cs-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: cs
+    name: cs-po
+  ports:
+  - port: 8443
+    targetPort: 8443
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata: 
+  name: cs-ing
+  namespace: codeserver
+  labels:
+    app: cs
+    name: cs-ing
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: code-157.230.196.33.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cs-svc
+            port:
+              number: 8443
+

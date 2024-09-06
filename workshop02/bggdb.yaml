@@ -1,0 +1,53 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bggdb-deploy
+  namespace: bggns
+  labels:
+    name: bggdb-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bgg
+      name: bggdb-po
+  template:
+    metadata:
+      namespace: bggns
+      labels:
+        app: bgg
+        name: bggdb-po
+    spec:
+      containers:
+      - name: bgg-database-container
+        image: stackupiss/bgg-database:v1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: database-port
+          containerPort: 3306
+        # check health of pod using mysqladmin ping (optional)
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bggdb-svc
+  namespace: bggns
+  labels:
+    app: bgg
+    name: bggdb-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: bgg
+    name: bggdb-po
+  ports:
+  - port: 3306
+    targetPort: 3306
+
+
+
+
+
+
+

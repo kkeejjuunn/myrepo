@@ -1,0 +1,32 @@
+volumnes:
+  data-vol:
+networks:
+  mynet:
+services:
+  #docker run -f --name=mydb --network=mynet --mount ty=volume, src = data-vol, dst=/var/lib/mysql chukmunnlee/mydb:v1
+  mydb:
+  images: chukmunnlee/mydb:v1
+  build:
+    context: database
+    #specify docker file
+    # dockerfile
+  environment:
+  - APP_PORT=3000
+  volumes:
+  - data-vol:/var/lib/mysql
+  networks:
+  - mynet
+  # docker run -d -p 8000-90000:30000 --network=mynet \ -e DB_Host=mydb -e DB_user=ROOT -E db_password=changeit \ chukmunlee/myapp:v1
+  myapp:
+    images: chukmunlee/myapp:v1
+    build:
+      context:server
+    environment:
+    - DB_HOST=mydb
+    networks:
+    - mynet
+    ports:
+    - 8000-9000:3000
+    depends on:
+    - mydb
+

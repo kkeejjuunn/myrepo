@@ -1,0 +1,36 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: codeserver
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: do-block-storage
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysql-po
+  namespace: codeserver
+spec:
+  volumes:
+  - name: data-vol
+    persistentVolumeClaim:
+      claimName: mysql-pvc
+  containers:
+  - name: mysql-container
+    image: mysql:8
+    env:
+    - name: MYSQL_ROOT_PASSWORD
+      value: changeit
+    ports:
+    - containerPort: 3306
+    volumeMounts:
+    - name: data-vol
+      mountPath: /config/workspace
+    resources: {}
